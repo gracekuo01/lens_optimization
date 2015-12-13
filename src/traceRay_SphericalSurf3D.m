@@ -1,16 +1,17 @@
 function [ xout, xtout, yout, ytout, zout ] = traceRay_SphericalSurf3D...
-    ( x0, y0, z0, xt, yt, r, z_lens, n1, n2)
+    ( x0, y0, z0, xt, yt, r, z_lens, sd, n1, n2)
 % [ xout, xtout, yout, ytout, zout ] = traceRay_SphericalSurf3D 
-%   ( x0, y0, z0, xt, yt, r, z_lens, n1, n2)
+%   ( x0, y0, z0, xt, yt, r, z_lens, sd, n1, n2)
 %
 % Traces a ray specified by (x0, y0, z0, xt, yt) throught the 3D spherical
-% surface specified by (r, z_lens, n1, n2).
+% surface specified by (r, z_lens, sd, n1, n2).
 %
 % Inputs:
 %   x0, y0, z0 - initial x, y, and z positions of ray
 %   xt, yt - initial x and y angles of ray
 %   r  - lens radius
 %   z_lens  - z position of lens center
+%   sd - semidiamter of lens
 %   n1 - index of refraction of first medium
 %   n2 - index of refraction of second medium
 %
@@ -25,6 +26,7 @@ function [ xout, xtout, yout, ytout, zout ] = traceRay_SphericalSurf3D...
 %           intersect. 
 %       (2) the current surface is behind the
 %           previous surface, which is non-physical.
+%       (3) the ray is outside the semidiamter of the lens
 %   If the output is complex, there was total internal refection.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,6 +38,10 @@ yout = nan;
 ytout = nan;
 zout = nan;
 
+if isnan(x0)
+    return
+end
+
 tx = tan(xt);
 ty = tan(yt);
 
@@ -46,9 +52,16 @@ if isinf(r)
     zout = z_lens;
     xout = tx*dz+x0;
     yout = ty*dz+y0;
-    xtout = asin((n1/n2)*sin(xt));
-    ytout = asin((n1/n2)*sin(yt));
-    return
+    
+    % check if ray is within surface extent (semidiameter)
+    if (xout^2 + yout^2 > sd^2)
+        zout = nan; xout = nan; yout = nan;
+        return
+    else
+        xtout = asin((n1/n2)*sin(xt));
+        ytout = asin((n1/n2)*sin(yt));
+        return
+    end
 end
 
 % Calculate sphere center, zc
@@ -87,12 +100,12 @@ xout = tx*z_inter+x0;
 yout = ty*z_inter+y0;
 zout = z_inter+z0;
 
-%%%%%% Add this back in to simulate vingetting %%%%%%
-%
+
 % If outside of apature of element, remove ray from system
-%         if (abs(x_inter)>(ap/2)){
-%             return notARay;
-%         }
+if (xout^2 + yout^2 > sd^2)
+    zout = nan; xout = nan; yout = nan;
+    return
+end
 
 % calculate angle out
 alpha = atan(-xout/(r-z_inter+dz));

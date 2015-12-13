@@ -1,0 +1,18 @@
+function [ rmse ] = calc_rmse( xout, yout, x_ideal, y_ideal )
+%[ rmse ] = calc_rmse( xout, yout, xin, yin )
+%   Calculate rms error between (xout, yout) and the ideal position, 
+%   (x_ideal, y_ideal)
+%
+% Inputs:
+%   xout - vector of x positions
+%   yout - vector of y positions
+%   x_ideal - scalar, ideal x position
+%   y_ideal - scalar, ideal y position
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xout = xout(find(~isnan(xout)));
+rmse = sqrt(mean((xout - x_ideal*ones(size(xout))).^2 +...
+    (yout - y_ideal*ones(size(xout))).^2));
+    
+end
+
