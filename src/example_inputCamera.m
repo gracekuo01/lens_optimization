@@ -13,8 +13,10 @@
 % The first surface is always the object plane
 clear camera
 camera(1) = struct('R', inf,   'd', 150, 'n', 1,   'sd', inf);   % Object plane
-camera(2) = struct('R', inf,   'd', 10,  'n', 1.5, 'sd', 10);
-camera(3) = struct('R', -38.7, 'd', 150, 'n', 1,   'sd', 10);
+camera(2) = struct('R', inf,   'd', 10,  'n', 1.5, 'sd', 20);
+camera(3) = struct('R', -38.7, 'd', 5, 'n', 1,   'sd', 20);
+camera(4) = struct('R', 50,   'd', 5,  'n', 1.5, 'sd', 20);
+camera(5) = struct('R', inf, 'd', 150, 'n', 1,   'sd', 20);
 
 % Plot spot diagram
 N = 1000; % number of rays to trace
@@ -27,8 +29,8 @@ I = find(sqrt(Xrand.^2+Yrand.^2)<=pupil_radius);
 Xrand = Xrand(I(1:N));
 Yrand = Yrand(I(1:N));
 
-x0 = 5*ones(N,1); 
-y0 = 5*ones(N,1);
+x0 = 15*ones(N,1); 
+y0 = 15*ones(N,1);
 
 xt = atan((Xrand-x0)/(dist_to_pupil));
 yt = atan((Yrand-y0)/(dist_to_pupil));
@@ -42,4 +44,8 @@ for i = 1:N
 end
 
 plot(xout, yout, 'o');
+
+%%
+h = figure(2);
+h = viz_camera(camera, h);
 
