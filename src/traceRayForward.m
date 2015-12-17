@@ -1,4 +1,4 @@
-function [ xout, xtout, yout, ytout ] = traceRayThroughSurfaces( x0, y0, xt, yt, camera )
+function [ xout, xtout, yout, ytout ] = traceRayForward( x0, y0, xt, yt, camera )
 %UNTITLED3 Summary of this function goes here
 %   Trace rays from the object plane (first surface) to the image plane
 %   (n+1) surface

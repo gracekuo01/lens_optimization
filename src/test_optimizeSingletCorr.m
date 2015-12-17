@@ -1,15 +1,20 @@
-function [ ] = test_optimizeSinglet( )
+function [ ] = test_optimizeSingletCorr( )
 
 x0 = [inf, -38.7, 10]; % initial condition
+tic
 rmse = objectiveFunction(x0)
+toc
 
-% x = fminsearch(@objectiveFunction,x0);
-% rmse = objectiveFunction(x)
+%[x,rmse,exitflag] = fminsearch(@objectiveFunction,x0,optimset('Display','iter', 'MaxFunEvals', 150));
 % x
+% rmse
+% exitflag
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function [rmse] = objectiveFunction(x)
+        addpath('monte_carlo_corr');
         % Variables
         % x(1): R1 radius of curvature of first surface  - init: inf
         % x(2): R2 radius of curvature of second surface - init: -38.7
@@ -22,6 +27,10 @@ rmse = objectiveFunction(x0)
         si = 150; % distance from lens to image plane
         sourcex = 5; % source position x
         sourcey = 5; % source position y
+        pixel_pitch = 0.01;
+        numAngSensors = 10;
+        xrange = [-6 -4];
+        yrange = [-6 -4];
         
         % Set up camera
         camera(1) = struct('R', inf,  'd', so,   'n', 1, 'sd', inf);   % Object plane
@@ -53,13 +62,22 @@ rmse = objectiveFunction(x0)
                 traceRayForward( x(i), y(i), xt(i), yt(i), camera );
         end
         
+        rmse_original = calc_rmse(xout, yout, sourcex, sourcey)
+        
+        binned_data = binData([xout yout xtout ytout], pixel_pitch,...
+            numAngSensors, xrange, yrange, sd, si);
+        ABCD_parax = [1 150; 0 1]*[1 0; -1/75 1]*[1 150; 0 1];
+
+        
+        N = 10;
+        [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection( binned_data, pixel_pitch,...
+            numAngSensors, xrange, yrange, sd, si, N, camera, ABCD_parax);
+        
         rmse = calc_rmse(xout, yout, sourcex, sourcey);
-        figure; plot(xout, yout);
 
         
     end
 
 end
-
 
 

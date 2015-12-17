@@ -1,0 +1,20 @@
+rays75mm.mat
+
+Contains ray data collected in Zemax.
+'rays' - 	1000 x 4 x 3 matrix
+			The columns contian x, y, theta_x, theta_y where the angles are measured along the positive z-axis (into the image plane)
+			The rows are 1000 different rays from an axial point through a random position in the pupil plane
+			The third dimension is the wavelength with the following wavelengths in this order:
+			0.45, 0.55, 0.65 um
+
+
+Zemax Set-Up
+
+so = 150 mm (Distance from object plane to lens)
+si = 149.352 mm (Distance from lens to image plane)
+R1 = inf mm (Radius of first lens surface)
+R2 = 39.2 mm (Radius of second lens surface)
+d  = 1 mm (distance between lens centers)
+sd = 5 mm (Semidiameter)
+f  = 75 mm (focal length)
+material = BK7
