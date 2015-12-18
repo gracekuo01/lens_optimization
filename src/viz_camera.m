@@ -32,6 +32,9 @@ for i = 1:numel(camera)
     z = camera(i).d + z;
 end
 
+[x, y] = drawFlatSurf (z, max(all_sd));
+plot(x,y);
+
 hold off
 axis equal
 grid on

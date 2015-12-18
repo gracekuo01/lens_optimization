@@ -5,10 +5,10 @@ tic
 rmse = objectiveFunction(x0)
 toc
 
-%[x,rmse,exitflag] = fminsearch(@objectiveFunction,x0,optimset('Display','iter', 'MaxFunEvals', 150));
-% x
-% rmse
-% exitflag
+[x,rmse,exitflag] = fminsearch(@objectiveFunction,x0,optimset('Display','iter', 'MaxFunEvals', 150));
+x
+rmse
+exitflag
 
 
 
@@ -62,18 +62,20 @@ toc
                 traceRayForward( x(i), y(i), xt(i), yt(i), camera );
         end
         
-        rmse_original = calc_rmse(xout, yout, sourcex, sourcey)
+        %rmse_original = calc_rmse(xout, yout, -sourcex, -sourcey)
         
         binned_data = binData([xout yout xtout ytout], pixel_pitch,...
             numAngSensors, xrange, yrange, sd, si);
         ABCD_parax = [1 150; 0 1]*[1 0; -1/75 1]*[1 150; 0 1];
+        %image = cellfun(@sum,cellfun(@sum, binned_data, 'UniformOutput', 0));
+        %figure; plot(xout, yout, 'o'); colorbar;
 
         
-        N = 10;
+        N = 1;
         [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection( binned_data, pixel_pitch,...
             numAngSensors, xrange, yrange, sd, si, N, camera, ABCD_parax);
-        
-        rmse = calc_rmse(xout, yout, sourcex, sourcey);
+        %figure; plot(xout, yout, 'o'); colorbar;
+        rmse = calc_rmse(xout, yout, -sourcex, -sourcey);
 
         
     end

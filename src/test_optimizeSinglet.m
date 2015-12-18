@@ -1,11 +1,25 @@
 function [ ] = test_optimizeSinglet( )
 
-x0 = [inf, -38.7, 10]; % initial condition
-rmse = objectiveFunction(x0)
+x = [50, -50, 2]; % initial condition
 
-% x = fminsearch(@objectiveFunction,x0);
-% rmse = objectiveFunction(x)
-% x
+sd = 10;
+n = 1.5;
+so = 100;
+si = 150; % distance from lens to image plane
+camera(1) = struct('R', inf,  'd', so,   'n', 1, 'sd', inf);   % Object plane
+camera(2) = struct('R', x(1), 'd', x(3), 'n', n, 'sd', sd);
+camera(3) = struct('R', x(2), 'd', si,   'n', 1, 'sd', sd);
+viz_camera(camera);
+
+rmse = objectiveFunction(x)
+
+x = fminsearch(@objectiveFunction,x);
+rmse = objectiveFunction(x)
+x
+camera(1) = struct('R', inf,  'd', so,   'n', 1, 'sd', inf);   % Object plane
+camera(2) = struct('R', x(1), 'd', x(3), 'n', n, 'sd', sd);
+camera(3) = struct('R', x(2), 'd', si,   'n', 1, 'sd', sd);
+viz_camera(camera);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,12 +28,13 @@ rmse = objectiveFunction(x0)
         % x(1): R1 radius of curvature of first surface  - init: inf
         % x(2): R2 radius of curvature of second surface - init: -38.7
         % x(3): spacing between first and second surface - init: 10
+        % x(4): spacing between end of lens and image plane - init: 150;
         
         % Constants
-        sd = 10;  % semidiamter
-        n = 1.5;  % index of refraction
-        so = 150; % distance from object to lens
-        si = 150; % distance from lens to image plane
+        %sd = 10;  % semidiamter
+        %n = 1.5;  % index of refraction
+        %so = 150; % distance from object to lens
+        %si = 150; % distance from lens to image plane
         sourcex = 5; % source position x
         sourcey = 5; % source position y
         
@@ -53,8 +68,8 @@ rmse = objectiveFunction(x0)
                 traceRayForward( x(i), y(i), xt(i), yt(i), camera );
         end
         
-        rmse = calc_rmse(xout, yout, sourcex, sourcey);
-        figure; plot(xout, yout);
+        rmse = calc_rmse(xout, yout, -sourcex, -sourcey);
+        %figure; plot(xout, yout);
 
         
     end
