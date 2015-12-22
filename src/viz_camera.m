@@ -3,9 +3,9 @@ function [ h ] = viz_camera( camera, h )
 %   Display lenses, return figure handle
 
 if nargin > 1
-    figure(h)
+    axes(h);
 else
-    figure
+    h = figure;
 end
 
 % get maximum non-infinite semidiameter
@@ -16,7 +16,7 @@ for i = 1:numel(camera)
     end
 end
 
-clf
+cla
 hold on
 
 z = 0;
