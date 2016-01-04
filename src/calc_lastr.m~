@@ -1,4 +1,4 @@
-function [ camera ] = calc_lastr( camera, EFL )
+function [ camera, R ] = calc_lastr( camera, EFL )
 %[ camera ] = calc_lastr( camera, EFL )
 %   Calculate the radius of the last spherical element to get the given EFL
 %   Returns a new camera with the correct last radius
@@ -14,12 +14,12 @@ end
 
 d = camera(end-1).d;
 n1 = camera(end-1).n;
-n2 = camer
+n2 = camera(end).n;
 ABCD = [1 d; 0 1]*ABCD; % ABCD matrix of all elements up to 
                         % (and NOT including) the last curved surface
 
-
 R = ( 1/(ABCD(1,1)*(n2-n1))* (ABCD(2,1)*n1 + n2/EFL) )^(-1);
+camera(end).R = R;
 
 end
 
