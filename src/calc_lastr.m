@@ -1,5 +1,5 @@
 function [ camera, R ] = calc_lastr( camera, EFL )
-%[ camera ] = calc_lastr( camera, EFL )
+%[ camera, r ] = calc_lastr( camera, EFL )
 %   Calculate the radius of the last spherical element to get the given EFL
 %   Returns a new camera with the correct last radius
 
