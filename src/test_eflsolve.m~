@@ -1,0 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TEST FILE - Test EFL solver
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% et up camera
+clear camera
+camera(1) = struct('R', inf,  'd', so,   'n', 1, 'sd', inf);   % Object plane
+camera(2) = struct('R', x(1), 'd', x(3), 'n', n, 'sd', sd);
+camera(3) = struct('R', x(2), 'd', si,   'n', 1, 'sd', sd);
