@@ -96,6 +96,11 @@ else
     return;
 end
 
+% remove ray if it is not hitting the real side of the sphere
+if (r > 0 && z_inter > zc) || (r < 0  && z_inter < zc)
+    return
+end
+
 xout = tx*z_inter+x0;
 yout = ty*z_inter+y0;
 zout = z_inter+z0;
@@ -118,7 +123,10 @@ t1 = yt - alpha;
 t2 = asin((n1/n2)*sin(t1));
 ytout = t2+alpha;
 
-
+if ~(isreal(xout) && isreal(yout) && isreal(xtout) && isreal(ytout))
+    xout = nan; yout = nan;
+    xtout = nan; ytout = nan;
+end
 
 end
 

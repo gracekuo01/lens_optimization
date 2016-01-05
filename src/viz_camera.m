@@ -35,6 +35,11 @@ end
 [x, y] = drawFlatSurf (z, max(all_sd));
 plot(x,y);
 
+
+
+[ xout, yout, zout ] = viz_traceRayForward( 0, 0, atan(15/300), 0, camera );
+plot(zout, xout);
+
 hold off
 axis equal
 grid on
@@ -51,7 +56,7 @@ grid on
     function [x, y] = drawCurvedSurf (R, z, sd)
         % R should not be infinite
         % x, y are horizontal vectors
-        num_points = 20;
+        num_points = 100;
         center = R + z;
         theta_max = asin(sd/R);
         theta = linspace(-theta_max, theta_max, num_points);

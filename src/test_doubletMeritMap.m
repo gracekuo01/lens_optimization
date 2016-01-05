@@ -18,10 +18,10 @@ n1 = 1.618;   % index of refraction of first element
 n2 = 1.717;   % index of refraction of second element
 na = 1;       % index of refraction of air
 sd = 33.33/2; % semidiamter of first element
-seed = 2345;   % seed for calculating random rmse
+seed = 1899345;   % seed for calculating random rmse
 
 % field points
-sourcex = [0]; sourcey = [0];
+sourcex = [0, 10]; sourcey = [0, 0];
 
 % variables
 r2 = 1./linspace(-0.025, 0.040, 100);
@@ -47,24 +47,31 @@ for i = 1:numel(r2)
         camera(4) = struct('R', r3(j), 'd', d3, 'n', n2, 'sd', sd);
         [camera, r4] = calc_lastr(camera, EFL); % set last radius of curvature, r4
         [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
-        rmse_points = zeros(size(sourcex));
-        for n = 1:numel(sourcex)
-            rmse_points(n) = calc_rmseCam(camera, sourcex(n), sourcey(n), N, seed);
+        [ xout, xtout, yout, ytout ] = traceRayForward( 0, 0, atan(15/d0), 0, camera );
+        if isnan(xout)
+            rmse(i,j) = nan;
+        else
+            rmse_points = zeros(size(sourcex));
+            for n = 1:numel(sourcex)
+                rmse_points(n) = calc_rmseCam(camera, sourcex(n), sourcey(n), N, seed);
+            end
+            rmse(i,j) = rms(rmse_points);
         end
-        rmse(i,j) = rms(rmse_points);
     end
 end
 %%
 [R2, R3] = meshgrid(r2, r3);
-figure; surf(1./r3, 1./r3, rmse','EdgeColor','none');
+figure; surf(1./r3, 1./r2, rmse','EdgeColor','none');
 ylabel('c2 (mm^{-1})')
 xlabel('c3 (mm^{-1})')
 colorbar
 caxis([0 5])
 %%
 % Visual single point on merit function graph
-c2 = -.037; c3 = -0.0107;
+c2 = .002857; c3 = .05541;
 
+%camera(3) = struct('R', r2(39), 'd', d2, 'n', na, 'sd', sd);
+%camera(4) = struct('R', r3(27), 'd', d3, 'n', n2, 'sd', sd);
 camera(3) = struct('R', 1/c2, 'd', d2, 'n', na, 'sd', sd);
 camera(4) = struct('R', 1/c3, 'd', d3, 'n', n2, 'sd', sd);
 [camera, r4] = calc_lastr(camera, EFL); % set last radius of curvature, r4
@@ -73,7 +80,9 @@ rmse_points = zeros(size(sourcex));
 figure; h1 = subplot(2,1,1); h2 = subplot(2,1,2);
 viz_camera(camera, h1);
 title(sprintf('c2 = %1.4f, c3 = %1.4f', c2, c3));
-viz_spotdiag(camera, sourcex, sourcey, 1000, seed, h2);
+viz_spotdiag(camera, sourcex(1), sourcey(1), 1000, seed, h2);
+rmse_thisPoint = calc_rmseCam(camera, sourcex(1), sourcey(1), N, seed)
+
 
 
 
