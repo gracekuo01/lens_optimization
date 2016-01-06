@@ -67,8 +67,7 @@ for i = 1:size(data,1)
     
     % increment space-angle bin if ray is in field of view
     if (xpix > 0 && xpix <= numPixX && ypix > 0 && ypix <= numPixY && ...
-            xtheta_bin > 0 && xtheta_bin <= numAngSensors && ...
-            ytheta_bin > 0 && ytheta_bin <= numAngSensors)
+            xtheta_bin > 0 && xtheta_bin <= numAngSensors)
         data_binned{xpix,ypix}(xtheta_bin, ytheta_bin) = ...
             data_binned{xpix,ypix}(xtheta_bin, ytheta_bin) + (1/size(data,1));
     end

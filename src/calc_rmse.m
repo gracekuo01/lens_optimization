@@ -13,6 +13,11 @@ function [ rmse ] = calc_rmse( xout, yout, x_ideal, y_ideal )
 xout_real = xout(~isnan(xout) & ~isnan(yout));
 yout_real = yout(~isnan(xout) & ~isnan(yout));
 
+if nargin <= 2
+    x_ideal = rms(xout_real);
+    y_ideal = rms(yout_real);
+end
+    
 rmse = sqrt(mean((xout_real - x_ideal*ones(size(xout_real))).^2 +...
     (yout_real - y_ideal*ones(size(xout_real))).^2));
     

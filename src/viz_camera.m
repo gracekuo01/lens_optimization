@@ -35,11 +35,6 @@ end
 [x, y] = drawFlatSurf (z, max(all_sd));
 plot(x,y);
 
-
-
-[ xout, yout, zout ] = viz_traceRayForward( 0, 0, atan(15/300), 0, camera );
-plot(zout, xout);
-
 hold off
 axis equal
 grid on

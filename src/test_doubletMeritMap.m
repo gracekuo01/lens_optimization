@@ -78,7 +78,7 @@ camera(4) = struct('R', 1/c3, 'd', d3, 'n', n2, 'sd', sd);
 [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
 rmse_points = zeros(size(sourcex));
 figure; h1 = subplot(2,1,1); h2 = subplot(2,1,2);
-viz_camera(camera, h1);
+viz_cameraWithRay(camera, 0, 0, atan(15/300), 0, 'fwd', h1);
 title(sprintf('c2 = %1.4f, c3 = %1.4f', c2, c3));
 viz_spotdiag(camera, sourcex(1), sourcey(1), 1000, seed, h2);
 rmse_thisPoint = calc_rmseCam(camera, sourcex(1), sourcey(1), N, seed)

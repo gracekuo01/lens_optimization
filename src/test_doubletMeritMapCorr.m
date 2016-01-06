@@ -20,15 +20,15 @@ n2 = 1.717;   % index of refraction of second element
 na = 1;       % index of refraction of air
 sd = 33.33/2; % semidiamter of first element
 seed = 1899345;   % seed for calculating random rmse
-pixel_pitch = .02;
+pixel_pitch = .2;
 numAngSensors = 10;
 
 % field points
 sourcex = [0]; sourcey = [0];
 
 % variables
-r2 = 1./linspace(-0.025, 0.040, 50);
-r3 = 1./linspace(-0.045, 0.075, 50);
+r2 = 1./linspace(-0.025, 0.040, 30);
+r3 = 1./linspace(-0.045, 0.075, 30);
 
 % create camera
 clear camera
@@ -69,7 +69,7 @@ figure; surf(1./r3, 1./r2, rmse','EdgeColor','none');
 ylabel('c2 (mm^{-1})')
 xlabel('c3 (mm^{-1})')
 colorbar
-caxis([0 5])
+%caxis([0 5])
 %%
 % Visual single point on merit function graph
 c2 = .002857; c3 = .05541;

@@ -41,11 +41,18 @@ ymax = (floor(max(yout)/pixel_pitch)+1)*pixel_pitch;
 ymin = (floor(min(yout)/pixel_pitch))*pixel_pitch;
 xrange = [xmin xmax]; yrange = [ymin ymax];
 
-binned_data = binData([xout yout xtout ytout], pixel_pitch,...
+xout_real = xout(~isnan(xout) & ~isnan(yout));
+yout_real = yout(~isnan(xout) & ~isnan(yout));
+xtout_real = xtout(~isnan(xout) & ~isnan(yout));
+ytout_real = ytout(~isnan(xout) & ~isnan(yout));
+
+
+binned_data = binData([xout_real yout_real xtout_real ytout_real], pixel_pitch,...
     numAngSensors, xrange, yrange, sd, si);
 
 ABCD_parax = calc_abcd(camera);
 ABCD_parax(1,2) = 0; % enforce imaging condition
+
 %image = cellfun(@sum,cellfun(@sum, binned_data, 'UniformOutput', 0));
 %figure; plot(xout, yout, 'o'); colorbar;
 
@@ -54,7 +61,7 @@ n = 1;
 [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection( binned_data, pixel_pitch,...
     numAngSensors, xrange, yrange, sd, si, n, camera, ABCD_parax);
 %figure; plot(xout, yout, 'o'); colorbar;
-rmse = calc_rmse(xout, yout, rms(xout), rms(yout));
+rmse = calc_rmse(xout, yout);
 
 
 end

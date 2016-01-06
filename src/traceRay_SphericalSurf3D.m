@@ -91,7 +91,11 @@ if (z_inter1 < zray && z_inter2 >= zray)
 elseif (z_inter1 >= zray && z_inter2 < zray)
     z_inter = z_inter1;
 elseif (z_inter1 >= zray && z_inter2 >= zray)
-    z_inter = min(z_inter1,z_inter2);
+    if r > 0
+        z_inter = min(z_inter1,z_inter2);
+    else
+        z_inter = max(z_inter1,z_inter2);
+    end
 else
     return;
 end
