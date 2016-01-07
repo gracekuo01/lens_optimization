@@ -1,8 +1,9 @@
 function [ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
-    seed, pixel_pitch, numAngSensors)
+    seed, pixel_pitch, numAngSensors, n)
 %UNTITLED10 Summary of this function goes here
-%   Detailed explanation goes here
-
+%   N - number of rays to send for original
+%   n - number of monte carlo iterations
+tic
 addpath('monte_carlo_corr');
 
 if isempty(seed)
@@ -29,6 +30,10 @@ y0 = sourcey*ones(N,1);
 xt = atan((Xrand-x0)/(dist_to_pupil));
 yt = atan((Yrand-y0)/(dist_to_pupil));
 
+disp('Generate random rays for spot diagram:')
+toc
+tic
+
 xout = zeros(N,1); yout = zeros(N,1);
 xtout = zeros(N,1); ytout = zeros(N,1);
 for i = 1:N
@@ -46,6 +51,9 @@ yout_real = yout(~isnan(xout) & ~isnan(yout));
 xtout_real = xtout(~isnan(xout) & ~isnan(yout));
 ytout_real = ytout(~isnan(xout) & ~isnan(yout));
 
+disp('Trace rays forward:')
+toc
+tic
 
 binned_data = binData([xout_real yout_real xtout_real ytout_real], pixel_pitch,...
     numAngSensors, xrange, yrange, sd, si);
@@ -53,15 +61,18 @@ binned_data = binData([xout_real yout_real xtout_real ytout_real], pixel_pitch,.
 ABCD_parax = calc_abcd(camera);
 ABCD_parax(1,2) = 0; % enforce imaging condition
 
+disp('bin data:')
+toc
+
+
 %image = cellfun(@sum,cellfun(@sum, binned_data, 'UniformOutput', 0));
 %figure; plot(xout, yout, 'o'); colorbar;
 
-
-n = 1;
-[ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection( binned_data, pixel_pitch,...
+[ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection_efficient( binned_data, pixel_pitch,...
     numAngSensors, xrange, yrange, sd, si, n, camera, ABCD_parax);
 %figure; plot(xout, yout, 'o'); colorbar;
 rmse = calc_rmse(xout, yout);
+
 
 
 end

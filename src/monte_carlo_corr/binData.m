@@ -35,7 +35,7 @@ xrange(2) = xrange(1)+numPixX*pixel_pitch;
 yrange(2) = yrange(1)+numPixY*pixel_pitch;
 
 % Initialize cell array
-data_binned = repmat({zeros(numAngSensors)}, numPixX, numPixY);
+data_binned = zeros(numAngSensors, numAngSensors, numPixX, numPixY);
 
 % Iterate through all rays
 for i = 1:size(data,1)
@@ -69,8 +69,8 @@ for i = 1:size(data,1)
     if (xpix > 0 && xpix <= numPixX && ypix > 0 && ypix <= numPixY && ...
             xtheta_bin > 0 && xtheta_bin <= numAngSensors && ...
             ytheta_bin > 0 && ytheta_bin <= numAngSensors)
-        data_binned{xpix,ypix}(xtheta_bin, ytheta_bin) = ...
-            data_binned{xpix,ypix}(xtheta_bin, ytheta_bin) + (1/size(data,1));
+        data_binned(xtheta_bin, ytheta_bin, xpix, ypix) = ...
+            data_binned(xtheta_bin, ytheta_bin, xpix, ypix) + (1/size(data,1));
     end
 
 end

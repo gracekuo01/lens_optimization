@@ -19,16 +19,18 @@ n1 = 1.618;   % index of refraction of first element
 n2 = 1.717;   % index of refraction of second element
 na = 1;       % index of refraction of air
 sd = 33.33/2; % semidiamter of first element
-seed = 1899345;   % seed for calculating random rmse
-pixel_pitch = .2;
+seed = 199345;   % seed for calculating random rmse
+pixel_pitch = .02;
 numAngSensors = 10;
 
 % field points
 sourcex = [0]; sourcey = [0];
 
 % variables
-r2 = 1./linspace(-0.025, 0.040, 30);
-r3 = 1./linspace(-0.045, 0.075, 30);
+%r2 = 1./linspace(-0.025, 0.040, 20);
+%r3 = 1./linspace(-0.045, 0.075, 20);
+r2 = 1./linspace(-0.015, 0.030, 20);
+r3 = 1./linspace(-0.035, 0.065, 20);
 
 % create camera
 clear camera
@@ -57,7 +59,7 @@ for i = 1:numel(r2)
             rmse_points = zeros(size(sourcex));
             for n = 1:numel(sourcex)
                 rmse_points(n) = calc_rmseCorr(camera, sourcex(n), ...
-                    sourcey(n), N, seed, pixel_pitch, numAngSensors);
+                    sourcey(n), N, seed, pixel_pitch, numAngSensors, 5);
             end
             rmse(i,j) = rms(rmse_points);
         end
@@ -82,12 +84,8 @@ camera(4) = struct('R', 1/c3, 'd', d3, 'n', n2, 'sd', sd);
 [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
 rmse_points = zeros(size(sourcex));
 figure; h1 = subplot(2,1,1); h2 = subplot(2,1,2);
-viz_camera(camera, h1);
+viz_cameraWithRay(camera, 0, 0, atan(15/300), 0, 'fwd', h1);
 title(sprintf('c2 = %1.4f, c3 = %1.4f', c2, c3));
 viz_spotdiag(camera, sourcex(1), sourcey(1), 1000, seed, h2);
 rmse_thisPoint = calc_rmseCam(camera, sourcex(1), sourcey(1), N, seed)
-
-
-
-
 
