@@ -11,7 +11,7 @@ function [ r, d ] = calc_entrpupil( camera )
 % for now, specify the entrance pupil as the first element because it is
 % computationally efficient
 
-r = camera(2).sd;
+r = camera(2).sd*.9;
 d = camera(1).d;
 
 end

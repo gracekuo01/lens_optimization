@@ -19,18 +19,18 @@ n1 = 1.618;   % index of refraction of first element
 n2 = 1.717;   % index of refraction of second element
 na = 1;       % index of refraction of air
 sd = 33.33/2; % semidiamter of first element
-seed = 199345;   % seed for calculating random rmse
+seed = 1089345;   % seed for calculating random rmse
 pixel_pitch = .02;
-numAngSensors = 10;
+numAngSensors = 5;
 
 % field points
-sourcex = [0]; sourcey = [0];
+sourcex = [10]; sourcey = [10];
 
 % variables
 %r2 = 1./linspace(-0.025, 0.040, 20);
 %r3 = 1./linspace(-0.045, 0.075, 20);
-r2 = 1./linspace(-0.015, 0.030, 20);
-r3 = 1./linspace(-0.035, 0.065, 20);
+r2 = 1./linspace(-0.015, 0.030, 40);
+r3 = 1./linspace(-0.035, 0.065, 40);
 
 % create camera
 clear camera
@@ -43,7 +43,7 @@ camera(5) = struct('R', r4, 'd', d4,  'n', na, 'sd', sd);
 %[camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
 
 %%
-N = 100;
+N = 1000;
 rmse = zeros(numel(r2), numel(r3));
 for i = 1:numel(r2)
     disp(i)
@@ -74,7 +74,7 @@ colorbar
 %caxis([0 5])
 %%
 % Visual single point on merit function graph
-c2 = .002857; c3 = .05541;
+c2 = 1/r2(10); c3 = 1/r3(12);
 
 %camera(3) = struct('R', r2(39), 'd', d2, 'n', na, 'sd', sd);
 %camera(4) = struct('R', r3(27), 'd', d3, 'n', n2, 'sd', sd);
@@ -84,8 +84,8 @@ camera(4) = struct('R', 1/c3, 'd', d3, 'n', n2, 'sd', sd);
 [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
 rmse_points = zeros(size(sourcex));
 figure; h1 = subplot(2,1,1); h2 = subplot(2,1,2);
-viz_cameraWithRay(camera, 0, 0, atan(15/300), 0, 'fwd', h1);
+viz_cameraWithRay(camera, 0, 0, atan(15.5/300), 0, 'fwd', h1);
 title(sprintf('c2 = %1.4f, c3 = %1.4f', c2, c3));
 viz_spotdiag(camera, sourcex(1), sourcey(1), 1000, seed, h2);
 rmse_thisPoint = calc_rmseCam(camera, sourcex(1), sourcey(1), N, seed)
-
+rmse_thisPoint = calc_rmseCorr(camera, sourcex(1), sourcey(1), N, seed, pixel_pitch, numAngSensors, 5)

@@ -21,11 +21,13 @@ sd = 33.33/2; % semidiamter of first element
 seed = 1899345;   % seed for calculating random rmse
 
 % field points
-sourcex = [0, 10]; sourcey = [0, 0];
+sourcex = [10]; sourcey = [10];
 
 % variables
-r2 = 1./linspace(-0.025, 0.040, 100);
-r3 = 1./linspace(-0.045, 0.075, 100);
+%r2 = 1./linspace(-0.025, 0.040, 20);
+%r3 = 1./linspace(-0.045, 0.075, 20);
+r2 = 1./linspace(-0.015, 0.030, 40);
+r3 = 1./linspace(-0.035, 0.065, 40);
 
 % create camera
 clear camera
@@ -65,7 +67,7 @@ figure; surf(1./r3, 1./r2, rmse','EdgeColor','none');
 ylabel('c2 (mm^{-1})')
 xlabel('c3 (mm^{-1})')
 colorbar
-caxis([0 5])
+%caxis([0 5])
 %%
 % Visual single point on merit function graph
 c2 = .002857; c3 = .05541;

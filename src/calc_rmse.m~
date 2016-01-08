@@ -16,12 +16,11 @@ yout_real = yout(~isnan(xout) & ~isnan(yout));
 if nargin <= 4
     weights = ones(size(xout_real));
 else
-    weights = weights(~isnan(xout) & ~isnan(yout));
-end
+    weights = weights(
 
 if isempty(x_ideal) || isempty(y_ideal)
-    x_ideal = mean(xout_real);
-    y_ideal = mean(yout_real);
+    x_ideal = rms(xout_real);
+    y_ideal = rms(yout_real);
 end
     
 rmse = sqrt(mean(weights.*((xout_real - x_ideal*ones(size(xout_real))).^2 +...

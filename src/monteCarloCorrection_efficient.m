@@ -1,4 +1,4 @@
-function [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection_efficient( binned_data, pixel_pitch,...
+function [ corrected_img, xout, yout, xtout, ytout, weights] = monteCarloCorrection_efficient( binned_data, pixel_pitch,...
     numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax)
 %[ corrected_img ] = monteCarloCorrection( binned_data, pixel_pitch,
 %    numAngSensors, xrange, yrange, semidiameter, si  )
@@ -6,14 +6,12 @@ function [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection_effic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tic
-
 I_nonzero  = find(binned_data ~= 0);
 [lfi, lfj, lfk, lfl] = ind2sub(size(binned_data), I_nonzero);
 
 corrected_img = zeros(size(binned_data,3), size(binned_data,4));
 xout = zeros(1,N*numel(I_nonzero));
-xtout = xout; yout = xout; ytout = xout;
+xtout = xout; yout = xout; ytout = xout; weights = xout;
 count = 1;
 
 for i = 1:numel(I_nonzero)
@@ -41,6 +39,7 @@ for i = 1:numel(I_nonzero)
         
         xout(count) = xcorr(1); xtout(count) = xcorr(2);
         yout(count) = ycorr(1); ytout(count) = ycorr(2);
+        weights(count) = binned_data(I_nonzero(i))/N;
         
         % increment that pixel if ray is in field of view
         if (xpix > 0 && xpix <= size(binned_data,3) && ypix > 0 &&...
@@ -54,8 +53,8 @@ for i = 1:numel(I_nonzero)
     end
 end
 
-disp('trace rays out and back (actual correction):')
-toc
+
+
 
 end
 

@@ -42,10 +42,10 @@ for i = 1:N
 end
 
 % real (ideal) location:
-[xideal, xtideal, yideal, ytideal] =  traceRayForward( sourcex, sourcey,...
-    atan(-sourcex/dist_to_pupil), atan(-sourcey/dist_to_pupil), camera); 
+%[xideal, xtideal, yideal, ytideal] =  traceRayForward( sourcex, sourcey,...
+%    atan(-sourcex/dist_to_pupil), atan(-sourcey/dist_to_pupil), camera); 
 
-rmse = calc_rmse( xout, yout, xideal, yideal );
+rmse = calc_rmse( xout, yout, [], [] );
 
 end
 
