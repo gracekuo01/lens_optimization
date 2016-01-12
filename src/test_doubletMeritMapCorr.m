@@ -10,7 +10,7 @@
 EFL = 100;    % effective focal length
 r1 = 1/0.020; % radius of curvature of first glass surface
 r4 = inf;     % radius of curvature of last glass surface - solved for later
-d0 = 300;     % distance from object to first element (not from paper - made up)
+d0 = 150;     % distance from object to first element (not from paper - made up)
 d1 = 10.346;  % thickness of first element
 d2 = 1;       % air gap between first and second element
 d3 = 2.351;   % thickeness of second element;

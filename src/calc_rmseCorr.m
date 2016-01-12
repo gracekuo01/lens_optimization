@@ -44,6 +44,15 @@ ymax = (floor(max(yout)/pixel_pitch)+1)*pixel_pitch;
 ymin = (floor(min(yout)/pixel_pitch))*pixel_pitch;
 xrange = [xmin xmax]; yrange = [ymin ymax];
 
+numPixX = floor((xrange(2)-xrange(1))/pixel_pitch);
+numPixY = floor((yrange(2)-yrange(1))/pixel_pitch);
+
+if (numPixX > 8000 || numPixY > 8000)
+    warning('point discarded');
+    rmse = nan;
+    return
+end
+
 xout_real = xout(~isnan(xout) & ~isnan(yout));
 yout_real = yout(~isnan(xout) & ~isnan(yout));
 xtout_real = xtout(~isnan(xout) & ~isnan(yout));

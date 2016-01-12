@@ -9,7 +9,7 @@
 EFL = 100;    % effective focal length
 r1 = 1/0.020; % radius of curvature of first glass surface
 r4 = inf;     % radius of curvature of last glass surface - solved for later
-d0 = 300;     % distance from object to first element (not from paper - made up)
+d0 = 150;     % distance from object to first element (not from paper - made up)
 d1 = 10.346;  % thickness of first element
 d2 = 1;       % air gap between first and second element
 d3 = 2.351;   % thickeness of second element;
@@ -26,8 +26,8 @@ sourcex = [10]; sourcey = [10];
 % variables
 %r2 = 1./linspace(-0.025, 0.040, 20);
 %r3 = 1./linspace(-0.045, 0.075, 20);
-r2 = 1./linspace(-0.015, 0.030, 40);
-r3 = 1./linspace(-0.035, 0.065, 40);
+r2 = 1./linspace(-0.015, 0.030, 100);
+r3 = 1./linspace(-0.035, 0.065, 100);
 
 % create camera
 clear camera
@@ -49,7 +49,7 @@ for i = 1:numel(r2)
         camera(4) = struct('R', r3(j), 'd', d3, 'n', n2, 'sd', sd);
         [camera, r4] = calc_lastr(camera, EFL); % set last radius of curvature, r4
         [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
-        [ xout, xtout, yout, ytout ] = traceRayForward( 0, 0, atan(15/d0), 0, camera );
+        [ xout, xtout, yout, ytout ] = traceRayForward( 0, 0, atan(.6*sd/d0), 0, camera );
         if isnan(xout)
             rmse(i,j) = nan;
         else
@@ -70,7 +70,7 @@ colorbar
 %caxis([0 5])
 %%
 % Visual single point on merit function graph
-c2 = .002857; c3 = .05541;
+c3 = 1/r3(49); c2 = 1/r2(89);
 
 %camera(3) = struct('R', r2(39), 'd', d2, 'n', na, 'sd', sd);
 %camera(4) = struct('R', r3(27), 'd', d3, 'n', n2, 'sd', sd);
@@ -80,7 +80,7 @@ camera(4) = struct('R', 1/c3, 'd', d3, 'n', n2, 'sd', sd);
 [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
 rmse_points = zeros(size(sourcex));
 figure; h1 = subplot(2,1,1); h2 = subplot(2,1,2);
-viz_cameraWithRay(camera, 0, 0, atan(15/300), 0, 'fwd', h1);
+viz_cameraWithRay(camera, 0, 0, atan(sd*.6/d0), 0, 'fwd', h1);
 title(sprintf('c2 = %1.4f, c3 = %1.4f', c2, c3));
 viz_spotdiag(camera, sourcex(1), sourcey(1), 1000, seed, h2);
 rmse_thisPoint = calc_rmseCam(camera, sourcex(1), sourcey(1), N, seed)
