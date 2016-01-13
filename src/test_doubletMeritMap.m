@@ -19,6 +19,9 @@ n2 = 1.717;   % index of refraction of second element
 na = 1;       % index of refraction of air
 sd = 33.33/2; % semidiamter of first element
 seed = 1899345;   % seed for calculating random rmse
+pixel_pitch = .02;
+numAngSensors = 5;
+n_montecarlo = 5;
 
 % field points
 sourcex = [10]; sourcey = [10];
@@ -26,8 +29,8 @@ sourcex = [10]; sourcey = [10];
 % variables
 %r2 = 1./linspace(-0.025, 0.040, 20);
 %r3 = 1./linspace(-0.045, 0.075, 20);
-r2 = 1./linspace(-0.015, 0.030, 100);
-r3 = 1./linspace(-0.035, 0.065, 100);
+r2 = 1./linspace(-0.045, 0.075, 100);
+r3 = 1./linspace(-0.045, 0.075, 100);
 
 % create camera
 clear camera
@@ -49,13 +52,15 @@ for i = 1:numel(r2)
         camera(4) = struct('R', r3(j), 'd', d3, 'n', n2, 'sd', sd);
         [camera, r4] = calc_lastr(camera, EFL); % set last radius of curvature, r4
         [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
-        [ xout, xtout, yout, ytout ] = traceRayForward( 0, 0, atan(.6*sd/d0), 0, camera );
+        [ xout, xtout, yout, ytout ] = traceRayForward( 0, 0, atan(.9*sd/d0), 0, camera );
         if isnan(xout)
             rmse(i,j) = nan;
         else
             rmse_points = zeros(size(sourcex));
             for n = 1:numel(sourcex)
-                rmse_points(n) = calc_rmseCam(camera, sourcex(n), sourcey(n), N, seed);
+                %rmse_points(n) = calc_rmseCam(camera, sourcex(n), sourcey(n), N, seed);
+                rmse_points(n) = calc_rmseCorr(camera, sourcex(n), sourcey(n), N, seed, ...
+                    pixel_pitch, numAngSensors, n_montecarlo);
             end
             rmse(i,j) = rms(rmse_points);
         end
@@ -63,14 +68,14 @@ for i = 1:numel(r2)
 end
 %%
 [R2, R3] = meshgrid(r2, r3);
-figure; surf(1./r3, 1./r2, rmse','EdgeColor','none');
-ylabel('c2 (mm^{-1})')
+figure; surf(1./r2, 1./r3, rmse,'EdgeColor','none');
 xlabel('c3 (mm^{-1})')
+ylabel('c2 (mm^{-1})')
 colorbar
 %caxis([0 5])
 %%
 % Visual single point on merit function graph
-c3 = 1/r3(49); c2 = 1/r2(89);
+c3 = 1/r3(52); c2 = 1/r2(59);
 
 %camera(3) = struct('R', r2(39), 'd', d2, 'n', na, 'sd', sd);
 %camera(4) = struct('R', r3(27), 'd', d3, 'n', n2, 'sd', sd);

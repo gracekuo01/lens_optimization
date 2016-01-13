@@ -67,9 +67,9 @@ for i = 1:numel(r2)
 end
 %%
 [R2, R3] = meshgrid(r2, r3);
-figure; surf(1./r3, 1./r2, rmse','EdgeColor','none');
-ylabel('c2 (mm^{-1})')
-xlabel('c3 (mm^{-1})')
+figure; surf(1./r2, 1./r3, rmse,'EdgeColor','none');
+xlabel('c2 (mm^{-1})')
+ylabel('c3 (mm^{-1})')
 colorbar
 %caxis([0 5])
 %%
