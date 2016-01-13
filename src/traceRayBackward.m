@@ -8,6 +8,10 @@ function [ xout, xtout, yout, ytout ] = traceRayBackward( x0, y0, xt, yt, camera
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% intialize outputs to nan
+xout = nan; xtout = nan;
+yout = nan; ytout = nan;
+
 z_lens = 0; % start surfaces at z = 0
 z0 = 0;
 
@@ -21,6 +25,9 @@ for i = numel(camera):-1:2
     n2 = camera(i-1).n;
     [ x0, xt, y0, yt, z0 ] = traceRay_SphericalSurf3D...
     ( x0, y0, z0, xt, yt, r, z_lens, sd, n1, n2);
+    if isnan(x0)
+        return
+    end
 end
 
 % Propegate to image plane
