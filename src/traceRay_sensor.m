@@ -19,10 +19,10 @@ function [ rawImg ] = traceRay_sensor( x0, y0, z0, xt, yt, z_sensor,...
 % Check that rawImg is correct size. Create blank rawImg if not given
 expectedImgSize(1) = (xrange(2) - xrange(1)) / (pixel_pitch/numAngSensors);
 expectedImgSize(2) = (yrange(2) - yrange(1)) / (pixel_pitch/numAngSensors);
-if narin <= 10
+if nargin <= 10
     rawImg = zeros(expectedImgSize);
 end
-if size(rawImg, 1) ~= expectImgSize(1) || ...
+if size(rawImg, 1) ~= expectedImgSize(1) || ...
         size(rawImg, 2) ~= expectedImgSize(2)
     error('Input raw image is not correct size');
 end
@@ -30,6 +30,11 @@ end
 % Propegate ray to sensor plane
 xout = tan(xt)*(z_sensor-z0)+x0;
 yout = tan(yt)*(z_sensor-z0)+y0;
+
+% Check ray is in field of view
+if xout >= xrange(2) || xout < xrange(1) || yout >= yrange(2) || yout < yrange(1)
+    return
+end
 
 % Determine pixel location
 pixX = floor((xout-xrange(1))/(pixel_pitch/numAngSensors));
