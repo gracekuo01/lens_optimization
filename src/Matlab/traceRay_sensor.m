@@ -1,5 +1,5 @@
 function [ rawImg ] = traceRay_sensor( x0, y0, z0, xt, yt, z_sensor,...
-    pixel_pitch, numAngSensors, xrange, yrange, rawImg )
+    pixel_pitch, numAngSensors, xrange, yrange, I, rawImg )
 %[ rawImg ] = traceRay_sensor( x0, y0, z0, xt, yt, z_sensor,...
 %    pixel_pitch, numAngSensors )
 %
@@ -10,6 +10,7 @@ function [ rawImg ] = traceRay_sensor( x0, y0, z0, xt, yt, z_sensor,...
 %   pixel_pitch - size in mm of one side of square lenslet
 %   numAngSensors - number of real pixels within one lenslet
 %   xrange, yrange - 2 element vector describing extent of sensor (mm)
+%   I - intensity of incoming ray
 %
 %   Size of actual pixel is determined by the pixel_pitch and numAngSensors
 %   (real pixel size = pixel_pitch/numAngSensors)
@@ -32,16 +33,17 @@ xout = tan(xt)*(z_sensor-z0)+x0;
 yout = tan(yt)*(z_sensor-z0)+y0;
 
 % Check ray is in field of view
-if xout >= xrange(2) || xout < xrange(1) || yout >= yrange(2) || yout < yrange(1)
+if xout > xrange(2) || xout <= xrange(1) || yout > yrange(2) || yout <= yrange(1) || ...
+        isnan(xout) || isinf(xout) || isinf(yout)
     return
 end
 
 % Determine pixel location
-pixX = floor((xout-xrange(1))/(pixel_pitch/numAngSensors));
-pixY = floor((yout-yrange(1))/(pixel_pitch/numAngSensors));
+pixX = floor((xout-xrange(1))/(pixel_pitch/numAngSensors))+1;
+pixY = floor((yout-yrange(1))/(pixel_pitch/numAngSensors))+1;
 
 % Increment that bin
-rawImg(pixX, pixY) = rawImg(pixX, pixY) + 1;
+rawImg(pixX, pixY) = rawImg(pixX, pixY) + I;
 
 
 end

@@ -1,8 +1,10 @@
 function [ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
-    seed, pixel_pitch, numAngSensors, n)
-%UNTITLED10 Summary of this function goes here
-%   N - number of rays to send for original
-%   n - number of monte carlo iterations
+    seed, pixel_pitch, numAngSensors, f_lenslets, n)
+%[ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
+%    seed, pixel_pitch, numAngSensors, f_lenslets, n)
+%
+%   N - number of rays to send for original spot
+%   n - number of monte carlo iterations for correction (per pixel)
 
 addpath('monte_carlo_corr');
 
@@ -11,6 +13,10 @@ if isempty(seed)
 else
     rng(seed)
 end
+
+%%%%%%%%%%
+tic
+%%%%%%%%%%
 
 sd = camera(end).sd; % semidiamter
 si = camera(end).d;  % distance from lens to image plane
@@ -36,13 +42,25 @@ xout = zeros(N,1); yout = zeros(N,1);
 xtout = zeros(N,1); ytout = zeros(N,1);
 for i = 1:N
     [ xout(i), xtout(i), yout(i), ytout(i) ] = ...
-        traceRayForward( x0(i), y0(i), xt(i), yt(i), camera );
+        traceRayForward_withLenslets( x0(i), y0(i), xt(i), yt(i), camera,...
+        f_lenslets, pixel_pitch );
 end
+
+%%%%%%%%%%
+disp('Trace rays for original spot diagram')
+toc
+tic
+%%%%%%%%%%
+
 xmax = (floor(max(xout)/pixel_pitch)+1)*pixel_pitch;
 xmin = (floor(min(xout)/pixel_pitch))*pixel_pitch;
 ymax = (floor(max(yout)/pixel_pitch)+1)*pixel_pitch;
 ymin = (floor(min(yout)/pixel_pitch))*pixel_pitch;
 xrange = [xmin xmax]; yrange = [ymin ymax];
+
+ImgSize(1) = (xrange(2) - xrange(1)) / (pixel_pitch/numAngSensors);
+ImgSize(2) = (yrange(2) - yrange(1)) / (pixel_pitch/numAngSensors);
+rawimg = zeros(round(ImgSize));
 
 numPixX = floor((xrange(2)-xrange(1))/pixel_pitch);
 numPixY = floor((yrange(2)-yrange(1))/pixel_pitch);
@@ -58,21 +76,49 @@ yout_real = yout(~isnan(xout) & ~isnan(yout));
 xtout_real = xtout(~isnan(xout) & ~isnan(yout));
 ytout_real = ytout(~isnan(xout) & ~isnan(yout));
 
-binned_data = binData([xout_real yout_real xtout_real ytout_real], pixel_pitch,...
-    numAngSensors, xrange, yrange, sd, si);
+I = 1;
+for i = 1:numel(xout_real)
+    if ~(xout_real(i) > xrange(2) || xout_real(i) <= xrange(1) || ...
+            yout_real(i) > yrange(2) || yout_real(i) <= yrange(1))
+        % Determine pixel location
+        pixX = floor((xout_real(i)-xrange(1))/(pixel_pitch/numAngSensors))+1;
+        pixY = floor((yout_real(i)-yrange(1))/(pixel_pitch/numAngSensors))+1;
+        % Increment that bin
+        rawimg(pixX, pixY) = rawimg(pixX, pixY) + I;
+    end
+            
+end
+
+%%%%%%%%%%
+disp('Create raw image')
+toc
+tic
+%%%%%%%%%%
 
 ABCD_parax = calc_abcd(camera);
 ABCD_parax(1,2) = 0; % enforce imaging condition
 
 
-
 %image = cellfun(@sum,cellfun(@sum, binned_data, 'UniformOutput', 0));
 %figure; plot(xout, yout, 'o'); colorbar;
 
-[ corrected_img, xout, yout, xtout, ytout, weights] = monteCarloCorrection_efficient( binned_data, pixel_pitch,...
-    numAngSensors, xrange, yrange, sd, si, n, camera, ABCD_parax);
+[ correctedRawImg, xout, yout, weights ] = monteCarloCorrection_bruteForce( rawimg, camera, ...
+    xrange, yrange, pixel_pitch,...
+    numAngSensors, f_lenslets, ABCD_parax, n);
+
+%%%%%%%%%%
+disp('Monte Carlo Correction')
+toc
+
+%%%%%%%%%%
+
 %figure; plot(xout, yout, 'o'); colorbar;
 rmse = calc_rmse(xout, yout, [], [], weights);
+
+%%%%%%%%%%
+disp('RMSE calculation:')
+
+%%%%%%%%%%
 
 
 end

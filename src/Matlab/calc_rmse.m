@@ -10,8 +10,10 @@ function [ rmse ] = calc_rmse( xout, yout, x_ideal, y_ideal, weights )
 %   y_ideal - scalar, ideal y position
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tic
 xout_real = xout(~isnan(xout) & ~isnan(yout));
 yout_real = yout(~isnan(xout) & ~isnan(yout));
+toc
 
 if nargin <= 4
     weights = ones(size(xout_real));
@@ -23,9 +25,10 @@ if isempty(x_ideal) || isempty(y_ideal)
     x_ideal = mean(xout_real);
     y_ideal = mean(yout_real);
 end
+
     
 rmse = sqrt(mean(weights.*((xout_real - x_ideal*ones(size(xout_real))).^2 +...
     (yout_real - y_ideal*ones(size(xout_real))).^2)));
-    
+
 end
 

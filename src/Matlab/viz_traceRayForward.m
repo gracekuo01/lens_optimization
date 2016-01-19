@@ -1,8 +1,13 @@
 function [ xout, yout, zout ] = viz_traceRayForward( x0, y0, xt, yt, camera )
-%UNTITLED3 Summary of this function goes here
-%   Trace rays from the object plane (first surface) to the image plane
-%   (n+1) surface
-%   Ray at object plane is parametrized by x0, y0, xt, yt
+%[ xout, yout, zout ] = viz_traceRayForward( x0, y0, xt, yt, camera )
+%
+% Helper function for visualizing camera with rays.
+%
+% Traces specified ray  from the object plane (first surface) to the image 
+% plane (n+1) surface and returns the coordinates of the intersect with 
+% each surface for plotting.
+%
+% Ray at object plane is parametrized by x0, y0, xt, yt
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 xout = zeros(numel(camera)+1, 1); yout = xout; zout = xout;

@@ -1,11 +1,20 @@
-function [ h ] = viz_camera( camera, h )
-%viz_camera( camera )
-%   Display lenses, return figure handle
+function [ hout ] = viz_camera( camera, h )
+% viz_camera( camera )
+%   Display lenses in new figure
+%
+% [ hout ] = viz_camera( camera, h )
+%   Display lenses in given axes handle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin > 1
     axes(h);
 else
     h = figure;
+end
+
+if nargout > 0
+    hout = h;
 end
 
 % get maximum non-infinite semidiameter

@@ -34,11 +34,12 @@ toc
 disp(['c2: ' num2str(x(1))]);
 disp(['c3: ' num2str(x(2))]);
 disp('Final RMSE:'); disp(rmse);
-camera = createCamera(x);
+[ camera, d4 ] = createCamera(x);
+f_lenslets = pixel_pitch*d4/(2*(sd+1));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    function [camera] = createCamera(x)
+    function [camera, d4_new, r4_new] = createCamera(x)
         % create camera
         % x(1): r2, x(2): r3
         clear camera
@@ -47,15 +48,16 @@ camera = createCamera(x);
         camera(3) = struct('R', 1/x(2),'d', x(5), 'n', na, 'sd', sd);
         camera(4) = struct('R', 1/x(3),'d', x(6), 'n', n2, 'sd', sd);
         camera(5) = struct('R', r4,  'd', d4, 'n', na, 'sd', sd);
-        [camera, r4] = calc_lastr(camera, EFL); % set last radius of curvature, r4
-        [camera, d4] = calc_lastd(camera);      % set distance to image plane, d4
+        [camera, r4_new] = calc_lastr(camera, EFL); % set last radius of curvature, r4
+        [camera, d4_new] = calc_lastd(camera);      % set distance to image plane, d4
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function [rmse] = objectiveFunction(x)
         addpath('monte_carlo_corr');
 
-        camera = createCamera(x);
+        [ camera, d4 ] = createCamera(x);
+        f_lenslets = pixel_pitch*d4/(2*(sd+1));
         [ xout, xtout, yout, ytout ] = traceRayForward(0, 0, atan(.9*sd/d0), 0, camera);
         if isnan(xout)
             rmse = inf;
@@ -63,7 +65,7 @@ camera = createCamera(x);
             rmse_points = zeros(size(sourcex));
             for i = 1:numel(sourcex)
             rmse_points(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
-                seed, pixel_pitch, numAngSensors, n);
+                seed, pixel_pitch, numAngSensors, f_lenslets, n);
             %rmse_points(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
             %    seed);
             end

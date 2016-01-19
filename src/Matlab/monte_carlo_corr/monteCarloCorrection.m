@@ -2,6 +2,9 @@ function [ corrected_img, xout, yout, xtout, ytout] = monteCarloCorrection( binn
     numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax)
 %[ corrected_img ] = monteCarloCorrection( binned_data, pixel_pitch,
 %    numAngSensors, xrange, yrange, semidiameter, si  )
+%
+% OBSOLETE: VERY SLOW
+%
 %   N - number of rays in monte carlo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

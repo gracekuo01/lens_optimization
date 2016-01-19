@@ -1,7 +1,15 @@
-function  [ xout, yout, zout ] = viz_traceRayBackward( x0, y0, xt, yt, camera )
-%UNTITLED12 Summary of this function goes here
-%   Detailed explanation goes here
+function [ xout, yout, zout ] = viz_traceRayBackward( x0, y0, xt, yt, camera )
+%[ xout, yout, zout ] = viz_traceRayBackward( x0, y0, xt, yt, camera )
+%
+% Helper function for visualizing camera with rays.
+%
+% Traces specified ray  from the image plane (n+1) surface to the object 
+% plane (first surface) and returns the coordinates of the intersect with 
+% each surface for plotting.
+%
+% Ray at object plane is parametrized by x0, y0, xt, yt
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 xout = zeros(numel(camera)+1, 1); yout = xout; zout = xout;
 z_lens = 0; % start surfaces at z = 0
 z0 = 0;
