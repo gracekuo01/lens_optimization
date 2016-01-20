@@ -49,6 +49,12 @@ dz = z_lens-z0;
 
 % Case where surface is flat (r = inf)
 if isinf(r)
+    
+    % check surface is in front of ray
+    if dz < 0
+        return
+    end
+    
     zout = z_lens;
     xout = tx*dz+x0;
     yout = ty*dz+y0;
