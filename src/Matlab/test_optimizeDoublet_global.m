@@ -121,10 +121,10 @@ disp('Done with local optimization!')
         else  
             rmse_points = zeros(size(sourcex));
             for i = 1:numel(sourcex)
-            %rmse_points(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
-            %    seed, pixel_pitch, numAngSensors, n);
-            rmse_points(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
-                seed);
+            rmse_points(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
+                seed, pixel_pitch, numAngSensors, n);
+            %rmse_points(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
+            %    seed);
             end
             rmse = rms(rmse_points);
         end        
