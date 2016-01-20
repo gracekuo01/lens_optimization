@@ -1,9 +1,9 @@
 function [ corrected_img, xout, yout, xtout, ytout, weights] = ...
     monteCarloCorrection_efficient( binned_data, pixel_pitch,...
-    numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax)
+    numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax, dispBool)
 %[ corrected_img, xout, yout, xtout, ytout, weights] = ...
 %    monteCarloCorrection_efficient( binned_data, pixel_pitch,...
-%    numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax)
+%    numAngSensors, xrange, yrange, semidiameter, si, N, camera, ABCD_parax, dispBool)
 %
 % NOTE: This is quite possibly wrong, especially when paired with the data
 % from the lenslet array model.
@@ -40,18 +40,29 @@ function [ corrected_img, xout, yout, xtout, ytout, weights] = ...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-display_period = 100000; % set how often something is displayed in console
+if ~exist('dispBool')
+    dispBool = 1;
+elseif strcmp(dispBool, 'on')
+    dispBool = 1;
+elseif strcmp(dispBool, 'off')
+    dispBool = 0;
+else
+    error('dispBool should be "on" or "off"');
+end
+    
 
 I_nonzero  = find(binned_data ~= 0);
 [lfi, lfj, lfk, lfl] = ind2sub(size(binned_data), I_nonzero);
+
+display_period = numel(I_nonzero)/100; % set how often something is displayed in console
 
 corrected_img = zeros(size(binned_data,3), size(binned_data,4));
 xout = zeros(1,N*numel(I_nonzero));
 xtout = xout; yout = xout; ytout = xout; weights = xout;
 count = 1;
-numel(I_nonzero)
+
 for i = 1:numel(I_nonzero)
-    if mod(i,display_period)==1
+    if mod(i,display_period)==1 && dispBool
         disp(['Percent complete: ' num2str((i/numel(I_nonzero))*100)]);
         tic
     end
@@ -93,7 +104,7 @@ for i = 1:numel(I_nonzero)
 
     end
     
-    if mod(i,display_period)==0
+    if mod(i,display_period)==0 && dispBool
         toc
     end
     

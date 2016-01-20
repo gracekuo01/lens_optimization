@@ -28,13 +28,9 @@ camera(3) = struct('R', r2,'d', d2, 'n', na, 'sd', sd);
 [camera, r2] = calc_lastr(camera, EFL); % set last radius of curvature, r4
 [camera, d2] = calc_lastd(camera);      % set distance to image plane, d4
 
-ABCD_parax = calc_abcd(camera);
-ABCD_parax(1,2) = 0;
+ABCD_parax = cal
 
 tic
 [ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
      seed, pixel_pitch, numAngSensors, n)
-toc
-tic
-[rmse ] = calc_rmseCam( camera, sourcex, sourcey, N, seed)
 toc

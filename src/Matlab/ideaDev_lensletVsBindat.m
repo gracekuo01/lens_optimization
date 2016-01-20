@@ -10,14 +10,14 @@ r1 = 50;    r2 = -50;
 n1 = 1.5;   na = 1;
 sd = 11;
 EFL = 50;
-pixel_pitch = 0.02;
+pixel_pitch = 0.01;
 numAngSensors = 10;
 f_lenslets = pixel_pitch*d2/(2*(sd+1));
-xrange = [-5 5];
-yrange = [-5 5];
+xrange = [-1 1];
+yrange = [-1 1];
 sourcex = 0;
 sourcey = 0;
-N = 1000;
+N = 10000;
 n = 5;
 seed = 5968703;
 
@@ -28,6 +28,8 @@ camera(2) = struct('R', r1,'d', d1, 'n', n1, 'sd', sd);
 camera(3) = struct('R', r2,'d', d2, 'n', na, 'sd', sd);
 [camera, r2] = calc_lastr(camera, EFL); % set last radius of curvature, r4
 [camera, d2] = calc_lastd(camera);      % set distance to image plane, d4
+ABCD_parax = calc_abcd(camera);
+ABCD_parax(1,2) = 0;
 
 %%
 
@@ -73,17 +75,25 @@ for i = 1:N
     [ xout(i), xtout(i), yout(i), ytout(i) ] = traceRayForward( x0(i),...
         y0(i), xt(i), yt(i), camera );
 end
+%%
 
 binned_LF = binData( [xout yout xtout ytout], pixel_pitch, numAngSensors, xrange, yrange, sd, si );
 raw_LF = rawImg2LF(rawimg, camera, xrange, yrange, pixel_pitch, numAngSensors, f_lenslets);
+%%
+raw_LF = rot90(raw_LF,2);
 
 %%
 raw_focused = squeeze(sum(sum(raw_LF, 1), 2));
 binned_focused = squeeze(sum(sum(binned_LF, 1), 2));
-figure; imshow(raw_focused/max(max(raw_focused))); title('With raw image');
-figure; imshow(binned_focused/max(max(binned_focused))); title(' Binned: directly to LF');
+figure; imagesc(raw_focused/max(max(raw_focused))); title('With raw image');
+figure; imagesc(binned_focused/max(max(binned_focused))); title(' Binned: directly to LF');
 
 %%
+
+[ corrected_img ] = ...
+    monteCarloCorrection_efficient( binned_LF, pixel_pitch,...
+    numAngSensors, xrange, yrange, sd, si, n, camera, ABCD_parax);
+
 
 
 
