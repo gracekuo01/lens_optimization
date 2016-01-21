@@ -1,4 +1,4 @@
-function [ camera_array, rmse_array, init_ind ] = test_optimizeDoublet_global( )
+function [ camera_array, rmse_array, init_ind ] = test_optimizeDoublet_global( corr )
 clear camera
 clear camera_array
 % constants - all come from Turnhout et. al. (2008)
@@ -21,8 +21,10 @@ pixel_pitch = .02;
 numAngSensors = 5;
 N = 1000;      % number of rays traced for original spot diagram
 n = 5;        % number of points in each monte carlo correction
-Ndesigns = 1; % save the top Ndesigns
+Ndesigns = 50; % save the top Ndesigns
 rmse_array = zeros(Ndesigns,1);
+min_glass = 1; % min thickness of glass
+min_air = 0;   % min spacing between elements
 
 % field points
 sourcex = [0 10]; sourcey = [0 10];
@@ -32,19 +34,22 @@ disp('Survey of landscape...')
 all_points = zeros(5,5,5,5,5,5);
 for j1 = 1:5
     for j2 = 1:5
-        disp([num2str((j2/25)*100) '% complete'])
         for j3 = 1:5
             for j4 = 1:5
                 for j5 = 1:5
                     for j6 = 1:5
                         
-                        x = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6)];
+                        x = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6) 0];
+                        c = createCamera(x);
+                        [c, dend ] = calc_lastd(c);
+                        x(7) = dend;
                         all_points(j1, j2, j3, j4, j5, j6) = objectiveFunction(x);
                         
                     end
                 end
             end
         end
+        disp([num2str(((j2+5*(j1-1))/25)*100) '% complete'])
     end
 end
 
@@ -53,13 +58,14 @@ disp('Starting local optimization...')
 
 % get the best points
 copy = all_points;
-best = zeros(Ndesigns,1); index = best;
+init_ind = zeros(Ndesigns, 6);
 
 for k = 1:Ndesigns
     [best, index] = min(copy(:));
-    copy(index(k)) = inf;
+    copy(index) = inf;
     [j1, j2, j3, j4, j5, j6] = ind2sub(size(copy), index);
-    x0 = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6)];
+    init_ind(k, :) = [j1, j2, j3, j4, j5, j6];
+    x0 = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6) dend];
     
     [x,rmse,exitflag] = fminsearch(@objectiveFunction,x0);
     rmse_array(k) = rmse;
@@ -104,14 +110,19 @@ disp('Done with local optimization!')
         camera(2) = struct('R', 1/x(1),'d', x(4), 'n', n1, 'sd', sd);
         camera(3) = struct('R', 1/x(2),'d', x(5), 'n', na, 'sd', sd);
         camera(4) = struct('R', 1/x(3),'d', x(6), 'n', n2, 'sd', sd);
-        camera(5) = struct('R', r4,  'd', d4, 'n', na, 'sd', sd);
+        camera(5) = struct('R', r4,  'd', x(7), 'n', na, 'sd', sd);
         camera = calc_lastr(camera, EFL); % set last radius of curvature, r4
-        camera = calc_lastd(camera);      % set distance to image plane, d4
+        %camera = calc_lastd(camera);      % set distance to image plane, d4
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function [rmse] = objectiveFunction(x)
         addpath('monte_carlo_corr');
+        
+        if x(4) < min_glass || x(5) < min_air || x(6) < min_glass
+            rmse = inf;
+            return;
+        end
 
         camera = createCamera(x);
         [ xout, xtout, yout, ytout ] = traceRayForward(0, 0, atan(.9*sd/d0), 0, camera);
@@ -120,8 +131,10 @@ disp('Done with local optimization!')
         else  
             rmse_points = zeros(size(sourcex));
             for i = 1:numel(sourcex)
+                if strcmp(corr, 'corr')
             %rmse_points(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
             %    seed, pixel_pitch, numAngSensors, n);
+                elseif strcmp(corr,
             rmse_points(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
                 seed);
             end
