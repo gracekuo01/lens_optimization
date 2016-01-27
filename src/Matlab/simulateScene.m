@@ -29,8 +29,8 @@ if nargin < 11
     rawimg = zeros(ImgSize);
 end
 
-pupil_radius = camera(end).sd;
-dist_to_pupil = camera(end).d;
+pupil_radius = camera(2).sd;
+dist_to_pupil = camera(1).d;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

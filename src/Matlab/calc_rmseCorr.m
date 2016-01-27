@@ -1,5 +1,5 @@
 function [ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
-    seed, pixel_pitch, numAngSensors, n)
+    seed, pixel_pitch, numAngSensors, n, plotBool)
 %[ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
 %    seed, pixel_pitch, numAngSensors, n)
 %   N - number of rays to send for original
@@ -11,6 +11,10 @@ if isempty(seed)
     rng('shuffle')
 else
     rng(seed)
+end
+
+if ~exist('plotBool')
+    plotBool = 0;
 end
 
 sd = camera(end).sd; % semidiamter
@@ -53,9 +57,14 @@ ytout_real = ytout(~isnan(xout) & ~isnan(yout));
 binned_data = binData([xout_real yout_real xtout_real ytout_real], pixel_pitch,...
     numAngSensors, xrange, yrange, sd, si);
 
-ABCD_parax = calc_abcd(camera);
+[camera2] = calc_lastd(camera);
+ABCD_parax = calc_abcd(camera2);
 ABCD_parax(1,2) = 0; % enforce imaging condition
 
+if plotBool
+    figure; subplot(1,2,1);
+    plot(xout, yout, '.'); title('Before Correction');
+end
 
 
 %image = cellfun(@sum,cellfun(@sum, binned_data, 'UniformOutput', 0));
@@ -66,5 +75,15 @@ ABCD_parax(1,2) = 0; % enforce imaging condition
 %figure; plot(xout, yout, 'o'); colorbar;
 rmse = calc_rmse(xout, yout, [], [], weights);
 
+if plotBool
+    subplot(1,2,2); plot(xout, yout, '.'); title('After Correction');
+    figure; subplot(1,2,1);
+    imagesc(squeeze(sum(sum(binned_data,1), 2)));
+    title('Before Correction');
+    subplot(1,2,2);
+    imagesc(corrected_img);
+    title('After Correction');
+
+end
 
 end

@@ -1,70 +1,84 @@
-function [ ] = analyze_globalDoubletOpt0119( )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Analyze Global Doublet Optimization 01-19-2016
 %
+% Now analyzing data from 01-21-2016 because this data is better (see
+% notebook notes on why)
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 path = '../../data/';
-filename_corr = 'doublet_global_corr_0119.mat';
-filename_nocorr = 'doublet_global_nocorr_0119.mat';
+filename_nocorr = 'doublet_global_0121.mat';
+    % Good contents:
+    % camera_array_nocorr (50x5 struct)
+    % rmse_array_nocorr (50x1 double)
+    % init_ind_nocorr (50x6 double)
+    %
+    % Bad contents:
+    % camera_array_corr (50x5 struct)
+    % rmse_array_corr (50x1 double)
+    % init_ind_corr (50x6 double)    
 
-% Load correction designs
-load([path filename_corr]);
-camera_designs_corr = camera_array;
-rmse_corr = rmse_array;
-[sorted_rmse_corr, sort_ind_corr] = sort(rmse_array, 'ascend');
-
+filename_corr = 'doublet_global_corr_0121.mat';
+    % camera_array_corr (50x5 struct)
+    % rmse_array_corr (50x1 double)
+    % init_ind_corr (50x6 double)
+    
+%%
 % Load no correction designs
 load([path filename_nocorr]);
-camera_designs_nocorr = camera_array;
-rmse_nocorr = rmse_array;
-[sorted_rmse_nocorr, sort_ind_nocorr] = sort(rmse_array, 'ascend');
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-figure; subplot(2,2,1);
-plot(sorted_rmse_corr, 'r');
-subplot(2,2,3);
-plot(sorted_rmse_nocorr, 'b');
+load([path filename_corr]);
+[sorted_rmse_corr, sort_ind_corr] = sort(rmse_array_corr, 'ascend');
+[sorted_rmse_nocorr, sort_ind_nocorr] = sort(rmse_array_nocorr, 'ascend');
 
 
-for i = 1:25-1
-    [ dist_t_corr(i), dist_c_corr(i), dist_d_corr(i) ] = calcDistBetweenCameras (...
-        camera_designs_corr(sort_ind_corr(i), :), camera_designs_corr(sort_ind_corr(i+1), :));
-    [ dist_t_nocorr(i), dist_c_nocorr(i), dist_d_nocorr(i) ] = calcDistBetweenCameras (...
-        camera_designs_nocorr(sort_ind_nocorr(i), :), camera_designs_nocorr(sort_ind_nocorr(i+1), :));
-end
+%% Plot RMSE
 
-subplot(2,2,2); n = 1.5:24.5;
-plot(n, dist_c_corr, 'r', n, dist_c_nocorr, 'b');
-subplot(2,2,4);
-plot(n, dist_d_corr, 'r', n, dist_d_nocorr, 'b');
-%%
 figure;
-for i = 1:25
-    subplot(
+plot(sorted_rmse_corr, 'ro-'); 
+hold on
+plot(sorted_rmse_nocorr, 'bo-');legend('corr', 'no corr'); hold off
+grid on
+ylabel('RMS spot size (mm)');
+title('Spot Size with and without 4D correction'
+
+
+%% Plot RMSE vs initial design number
+figure; subplot(2,1,1)
+plot(rmse_array_nocorr, 'bo-');
+ylabel('RMSE spot size (mm)');
+xlabel('Inital design ranking');
+title('No corr')
+grid on;
+subplot(2,1,2)
+plot(rmse_array_corr, 'ro-');
+ylabel('RMSE spot size (mm)');
+xlabel('Inital design ranking');
+title('Corr')
+grid on;
+
+
+%% Plot Designs - no corr
+
+figure;
+for i = 1:16
+    h = subplot(4,4,i);
+    viz_camera(camera_array_nocorr(sort_ind_nocorr(i), :), h);
+    xlim([1500 1570]);
+    title([num2str(sorted_rmse_nocorr(i)*1000) ' um' ]);
 end
+set(gcf, 'position', [p(1) p(2) 800 700])
+%% Plot Designs - corr
+
+figure;
+for i = 1:16
+    h = subplot(4,4,i);
+    viz_camera(camera_array_corr(sort_ind_corr(i), :), h);
+    xlim([1500 1570]);
+    title([num2str(sorted_rmse_corr(i)*1000) ' um' ]);
+end
+set(gcf, 'position', [p(1) p(2) 800 700])
 %%
 
-end
 
-function [ x ] = extractVars ( camera )
-x(1) = 1/camera(2).R;
-x(2) = 1/camera(3).R;
-x(3) = 1/camera(4).R;
-x(4) = camera(2).d;
-x(5) = camera(3).d;
-x(6) = camera(4).d;
-end
 
-function [ dist_total, dist_c, dist_d ] = calcDistBetweenCameras ( camera1, camera2 )
-x1 = extractVars( camera1 );
-x2 = extractVars( camera2 );
-dist_total = sqrt(sum((x1 - x2).^2));
-dist_c = sqrt(sum((x1(1:3) - x2(1:3)).^2));
-dist_d = sqrt(sum((x1(4:6) - x2(4:6)).^2));
-end
-
-function [ length ] = calcCameraLength ( camera )
-length = camera(2).d + camera(3).d + camera(4).d;
-end
