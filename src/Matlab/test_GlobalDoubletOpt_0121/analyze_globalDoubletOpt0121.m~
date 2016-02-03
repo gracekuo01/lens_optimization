@@ -1,13 +1,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Analyze Global Doublet Optimization 01-19-2016
+% Analyze Global Doublet Optimization 01-21-2016
 %
 % Now analyzing data from 01-21-2016 because this data is better (see
 % notebook notes on why)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-path = '../../data/';
+path = '';
 filename_nocorr = 'doublet_global_0121.mat';
     % Good contents:
     % camera_array_nocorr (50x5 struct)
@@ -64,9 +64,13 @@ figure;
 for i = 1:16
     h = subplot(4,4,i);
     viz_camera(camera_array_nocorr(sort_ind_nocorr(i), :), h);
+    V = calc_cameraVol(camera_array_nocorr(sort_ind_nocorr(i), :));
     xlim([1500 1650]);
-    title([num2str(sorted_rmse_nocorr(i)*1000) ' um' ]);
+    title([num2str(sorted_rmse_nocorr(i)*1000) ' um, ' num2str(V/100) ' cm^3' ]);
 end
+
+%%
+for i = 1:numel(sor_ind
 %p= get(gcf, 'position');
 %set(gcf, 'position', [p(1) p(2) 800 700])
 %% Plot Designs - corr

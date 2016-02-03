@@ -7,7 +7,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-path = '../../data/';
+path = '';
 filename_nocorr = 'doublet_global_0121.mat';
     % Good contents:
     % camera_array_nocorr (50x5 struct)
@@ -64,9 +64,18 @@ figure;
 for i = 1:16
     h = subplot(4,4,i);
     viz_camera(camera_array_nocorr(sort_ind_nocorr(i), :), h);
+    V = calc_cameraVol(camera_array_nocorr(sort_ind_nocorr(i), :));
     xlim([1500 1650]);
-    title([num2str(sorted_rmse_nocorr(i)*1000) ' um' ]);
+    title([num2str(sorted_rmse_nocorr(i)*1000) ' um, ' num2str(V/100) ' cm^3' ]);
 end
+
+%%
+vol_nocorr = zeros(size(sort_ind_nocorr));
+for i = 1:numel(sort_ind_nocorr)
+    vol_nocorr(i) = calc_cameraVol(camera_array_nocorr(sort_ind_nocorr(i), :));
+end
+figure; plot(sorted_rmse_nocorr, vol_nocorr/100, 'o')
+xlabel('RMSE (um)'); ylabel('Volume (cm^3)'); title('No corr');
 %p= get(gcf, 'position');
 %set(gcf, 'position', [p(1) p(2) 800 700])
 %% Plot Designs - corr
@@ -78,8 +87,14 @@ for i = 1:16
     xlim([1500 1570]);
     title([num2str(sorted_rmse_corr(i)*1000) ' um' ]);
 end
-set(gcf, 'position', [p(1) p(2) 800 700])
+%set(gcf, 'position', [p(1) p(2) 800 700])
 %%
+vol_corr = zeros(size(sort_ind_corr));
+for i = 1:numel(sort_ind_corr)
+    vol_corr(i) = calc_cameraVol(camera_array_corr(sort_ind_corr(i), :));
+end
 
+figure; plot(sorted_rmse_corr, vol_corr/100, 'o')
+xlabel('RMSE (um)'); ylabel('Volume (cm^3)'); title('corr')
 
 

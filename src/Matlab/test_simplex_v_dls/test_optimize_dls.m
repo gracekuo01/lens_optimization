@@ -1,4 +1,4 @@
-function [ camera_array, rmse_array, init_ind ] = test_optimizeDoublet_global( corr )
+function [ c, rmse_init] = test_optimize_dls( corr )%[ camera_array, rmse_array, time_elapsed] = test_optimize_dls( corr )
 clear camera
 clear camera_array
 % constants - all come from Turnhout et. al. (2008)
@@ -27,79 +27,39 @@ min_glass = 1; % min thickness of glass
 min_air = 0;   % min spacing between elements
 
 % field points
-sourcex = [0 50 150]; sourcey = [0 10];
+sourcex = [0 60 120]; sourcey = [0 60 120];
 
-disp('Survey of landscape...')
-% initial survey of the field
-all_points = zeros(5,5,5,5,5,5);
-for j1 = 1:5
-    for j2 = 1:5
-        for j3 = 1:5
-            for j4 = 1:5
-                for j5 = 1:5
-                    for j6 = 1:5
-                        
-                        x = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6) 0];
-                        c = createCamera(x);
-                        [c, dend ] = calc_lastd(c);
-                        x(7) = dend;
-                        all_points(j1, j2, j3, j4, j5, j6) = objectiveFunction(x);
-                        
-                    end
-                end
-            end
-        end
-        disp([num2str(((j2+5*(j1-1))/25)*100) '% complete'])
-    end
-end
 
-disp('Survey of the landscape complete')
+
+j1 = 4; j2 = 2; j3 = 5; j4 = 3; j5 = 3; j6 = 3;
+c = createCamera([c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6), 0]);
+[c, dend] = calc_lastd(c);
+
+x0 = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6) dend];
+
+figure; h = subplot(2,2,1);
+viz_camera(c, h); title('Initial Point')
+h = subplot(2,2,2); viz_spotdiag(c, 60, 60, 1000,[], h); 
+rmse_init = rms(objectiveFunction(x0));
+return
+title(['Initial RMSE: ' num2str(rmse_init*1000) ' um']);
 disp('Starting local optimization...')
 
-% get the best points
-copy = all_points;
-init_ind = zeros(Ndesigns, 6);
+options.Algorithm = {'levenberg-marquardt',.01};
+tic
+[x,resnorm,residual,exitflag,output]  = lsqnonlin(@objectiveFunction,x0, [], [], options);
+time_elapsed = toc
+rmse = objectiveFunction(x);
+rmse_array = rmse;
+camera_array = createCamera(x);
 
-for k = 1:Ndesigns
-    [best, index] = min(copy(:));
-    copy(index) = inf;
-    [j1, j2, j3, j4, j5, j6] = ind2sub(size(copy), index);
-    init_ind(k, :) = [j1, j2, j3, j4, j5, j6];
-    x0 = [c1(j1) c2(j2) c3(j3) d1(j4) d2(j5) d3(j6) dend];
-    
-    [x,rmse,exitflag] = fminsearch(@objectiveFunction,x0);
-    rmse_array(k) = rmse;
-    camera_array(k,:) = createCamera(x);
-    disp([num2str(k) ' / ' num2str(Ndesigns) ' complete'])
-    disp(['RMSE: ' num2str(rmse)])
-   
-end
+h = subplot(2,2,3);
+viz_camera(camera_array, h); title('Final Design')
+h = subplot(2,2,4); viz_spotdiag(camera_array, 60, 60, 1000,[], h);
+title(['Final RMSE: ' num2str(rms(rmse)*1000) ' um']);
 
+disp(['RMSE: ' num2str(rmse)])
 disp('Done with local optimization!')
-
-
-% % x0 = [1/r1 .015, 0.025 d1 d2 d3]; % initial condition
-% % 
-%  camera = createCamera(x0);
-% viz_cameraWithRay(camera);
-% keyboard
-% 
-% rmse = objectiveFunction(x0);
-% disp('Initial Condition RMSE:'); disp(rmse);
-% 
-% tic
-% %[x,rmse,exitflag] = fminsearch(@objectiveFunction,x,optimset('Display','iter', 'MaxFunEvals', 150));
-% [x,rmse,exitflag] = fminsearch(@objectiveFunction,x0);
-% toc
-% disp(['c1: ' num2str(x(1))]);
-% disp(['c2: ' num2str(x(2))]);
-% disp(['c3: ' num2str(x(3))]);
-% disp(['d1: ' num2str(x(4))]);
-% disp(['d2: ' num2str(x(5))]);
-% disp(['d3: ' num2str(x(6))]);
-% disp('Final RMSE:'); disp(rmse);
-% camera = createCamera(x);
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function [camera] = createCamera(x)
@@ -129,17 +89,17 @@ disp('Done with local optimization!')
         if isnan(xout)
             rmse = inf;
         else  
-            rmse_points = zeros(size(sourcex));
+            rmse = zeros(size(sourcex));
             for i = 1:numel(sourcex)
                 if strcmp(corr, 'corr')
-                    rmse_points(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
+                    rmse(i) = calc_rmseCorr( camera, sourcex(i), sourcey(i), N,...
                         seed, pixel_pitch, numAngSensors, n);
                 elseif strcmp(corr, 'nocorr')
-                    rmse_points(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
+                    rmse(i) = calc_rmseCam( camera, sourcex(i), sourcey(i), N,...
                         seed);
                 end
             end
-            rmse = rms(rmse_points);
+            %rmse = rms(rmse_points);
         end        
     end
 

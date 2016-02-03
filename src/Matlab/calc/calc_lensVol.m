@@ -1,4 +1,4 @@
-function [ V ] = calc_lensVol( z01, R1, z02, R2, sd, viz )
+function [ V, hout ] = calc_lensVol( z01, R1, z02, R2, sd, viz, h )
 %[ V ] = calc_lensVol( z01, R1, z02, R2 )
 %   Calculate the volume of the lens defined by the two spherical surfaces
 %   with z-intercept at z0 and radius of curvature R
@@ -7,9 +7,20 @@ function [ V ] = calc_lensVol( z01, R1, z02, R2, sd, viz )
 %   automatically)
 %
 %   viz - set to 1 for vizualization (0  is default)
+%       blue are shapes that are added, red are shapes that are subtracted
 
-if ~exist('viz')
+if ~exist('viz', 'var')
     viz = 0;
+end
+
+if ~exist('h', 'var') && viz
+    h = figure;
+elseif viz
+    axes(h);
+end
+
+if nargout == 2
+    hout = h;
 end
 
 if sd > min(abs([R1 R2]))
@@ -17,14 +28,15 @@ if sd > min(abs([R1 R2]))
 end
 
 if viz
-figure; hold on;
+hold on;
 end
-
-% find if spheres overlap by seeing if their projection along the y-axis
-% (circles) overlap
 
 
 % CASE 1: both have positive curvature (meniscus lens)
+% CASE 2: both have negative curvature (meniscus lens)
+% CASE 3: convex lens (first is positive, second is negative)
+% CASE 4: concave lens (first is negative, second is positive)
+
 if R1 > 0 && R2 > 0
     V = meniscusPos( z01, R1, z02, R2, sd );
 elseif R1 < 0 && R2 < 0
@@ -37,10 +49,6 @@ else
     error('R should never be 0!!');
 end
 
-% CASE 2: both have negative curvature (meniscus lens)
-% CASE 3: convex lens (first is positive, second is negative)
-% CASE 4: concave lens (first is negative, second is positive)
-% ALSO need to deal with inf cases
 
 if viz
 axis equal
@@ -77,9 +85,30 @@ end
     end
 
     function V = meniscusNeg(  z01, R1, z02, R2, sd  )
-        R1N = -R2; R2N = -R1;
-        z01N = -z02; z02N = -z01;
-        V = meniscusPos( z01N, R1N, z02N, R2N, sd );
+         % find volume of a menicus lens where both curvatures are negative
+        if R1 > 0 || R2 > 0
+            error('Both curvatures must be positive')
+        end
+        zc1 = getSphereCenter(z01, R1);
+        zc2 = getSphereCenter(z02, R2);
+        [xinter, zinter] = calc_circleInt(zc1, R1, zc2, R2);
+        if xinter < sd  && zinter >= (z01+R1)
+            V = sphereCapVol(xinter, R2) - sphereCapVol(xinter, R1);
+            if viz
+                drawSphereCap(xinter, R2, z02, 'add')
+                drawSphereCap(xinter, R1, z01, 'sub')
+            end
+        else
+            zout1 = calc_lensExtent(z01, R1, sd);
+            zout2 = calc_lensExtent(z02, R2, sd);
+            V = sphereCapVol(sd, R2) + cylinderVol(sd, zout2-zout1)...
+                - sphereCapVol(sd, R1);
+            if viz
+                drawSphereCap(sd, R2, z02, 'add')
+                drawCylinder(sd, zout2-zout1, zout1, 'add')
+                drawSphereCap(sd, R1, z01, 'sub')
+            end
+        end
     end
 
     function V = convex( z01, R1, z02, R2, sd )
