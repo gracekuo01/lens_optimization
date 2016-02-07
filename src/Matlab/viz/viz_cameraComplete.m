@@ -1,4 +1,4 @@
-function [ hout ] = viz_camera( camera, h )
+function [ hout ] = viz_cameraComplete( camera, h )
 % viz_camera( camera )
 %   Display lenses in new figure
 %
@@ -28,33 +28,21 @@ end
 cla
 hold on
 
-lw = 1;
-
 z = 0;
-for i = 2:(numel(camera)-1)
+for i = 1:numel(camera)
     sd = modify_sd (camera(i).R, camera(i).sd, all_sd);
-    if camera(i).n ~= 1
-        if isinf(camera(i).R)
-            [x1, y1] =  drawFlatSurf (z, sd);
-            plot(x1, y1, 'k', 'linewidth', lw);
-        else
-            [x1, y1] = drawCurvedSurf (camera(i).R, z, sd);
-            plot(x1, y1, 'k', 'linewidth', lw);
-        end
-        if isinf(camera(i+1).R)
-            [x2, y2] =  drawFlatSurf (z+camera(i).d, sd);
-            plot(x2, y2, 'k', 'linewidth', lw);
-        else
-            [x2, y2] = drawCurvedSurf (camera(i+1).R, z+camera(i).d, sd);
-            plot(x2, y2, 'k', 'linewidth', lw);
-        end
-        plot([x1(1) x2(1)], [y1(1) y2(1)], 'k', 'linewidth', lw);
-        plot([x1(end) x2(end)], [y1(end) y2(end)], 'k', 'linewidth', lw);
-        
+    if isinf(camera(i).R)
+        [x, y] =  drawFlatSurf (z, sd);
+        plot(x, y);
+    else
+        [x, y] = drawCurvedSurf (camera(i).R, z, sd);
+        plot(x, y);
     end
     z = camera(i).d + z;
 end
 
+[x, y] = drawFlatSurf (z, max(all_sd));
+plot(x,y);
 
 hold off
 axis equal
@@ -91,8 +79,6 @@ grid on
             sd = R;
         end
     end
-
-
 
 end
 

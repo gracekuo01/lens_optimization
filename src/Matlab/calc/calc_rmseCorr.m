@@ -5,7 +5,7 @@ function [ rmse ] = calc_rmseCorr( camera, sourcex, sourcey, N,...
 %   N - number of rays to send for original
 %   n - number of monte carlo iterations
 
-addpath('monte_carlo_corr');
+%addpath('monte_carlo_corr');
 
 if isempty(seed)
     rng('shuffle')
@@ -48,6 +48,13 @@ xmin = (floor(min(xout)/pixel_pitch))*pixel_pitch;
 ymax = (floor(max(yout)/pixel_pitch)+1)*pixel_pitch;
 ymin = (floor(min(yout)/pixel_pitch))*pixel_pitch;
 xrange = [xmin xmax]; yrange = [ymin ymax];
+
+if (xmax - xmin)/pixel_pitch > 1000 || (ymax - ymin)/pixel_pitch > 1000
+    rmse = inf;
+    warning('spot size too big, design not used for memory reasons')
+    return
+end
+
 
 xout_real = xout(~isnan(xout) & ~isnan(yout));
 yout_real = yout(~isnan(xout) & ~isnan(yout));

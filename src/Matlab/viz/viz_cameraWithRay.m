@@ -31,9 +31,9 @@ if nargin == 1
 end    
 
 if nargin > 6
-    h = viz_camera(camera, h);
+    h = viz_cameraComplete(camera, h);
 else
-    h = viz_camera(camera);
+    h = viz_cameraComplete(camera);
 end
 
 if nargout > 0
